@@ -1,0 +1,389 @@
+%----------------------导言区-------------------------
+\documentclass[10pt,oneside,a4paper]{article}	%设置一张a4大小的纸张
+\usepackage[text={170mm, 230mm},  vmarginratio=1:1]{geometry}
+%这里是导言区
+%\usepackage{amsmath}	%插入数学公式
+%\usepackage[space]{ctex}
+%\usepackage{CJK,CJKnumb,CJKulem} %中文支持宏包
+\usepackage{graphicx}	%调用插入图片的包
+\usepackage[slantfont, boldfont]{xeCJK}	%调用xeCJK宏包，一个中文支持的包
+\setCJKmainfont{SimSun}	%设置CJK主字体为SimSun
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage[table]{xcolor}
+\usepackage{threeparttable}	%给表格添加注解
+\usepackage{float}	%禁止图表浮动
+%行距设置为字号的 1.5 倍
+%\usepackage{setspace}
+%\onehalfspacing
+\linespread{1.5}
+%----------------------结束-----------------------
+%----------------------导言-----------------------
+
+
+%------------------------开始正文-----------------
+
+\begin{document}
+\title{\huge \textbf{Transcriptome Denovo Project}}
+\author{BGI Co., Ltd.}
+\maketitle
+\vspace{75 mm}	%设置垂直距离
+%设置项目名称
+\textbf{\textit{\large{Project: }}\large{RNA deneovo}}\par
+\vspace{5 mm}
+%设置客户名称
+\textbf{\textit{\large{Customer: }}\large{Yue Yao}}\par
+\vspace{5 mm}
+%设置客户机构
+\textbf{\textit{\large{Company/Institute: }}\large{华大基因科技有限公司}}\par
+\vspace{5 mm}
+%设置项目编号
+\textbf{\textit{\large{Project Code: }}\large{RNA-denovo-Rubber}}\par
+\vspace{5 mm}
+%设置物种
+\textbf{\textit{\large{Oraganism: }}\large{Rubber}}\par
+
+%开始新的一页
+\newpage
+\tableofcontents	%根据插入的标题生成目录
+\newpage
+
+%-----------------------------第一节-------------------------
+
+\section{分析结果}
+\subsection{摘要}
+本项目使用Illumina Hiseq平台一共测了4.58Gb数据。组装并去冗余后得到44,842个Unigene，总长度，平均长度，N50以及GC含量分别为 39,619,114
+bp，883bp，1,618bp和37.35 \%。然后将Unigene比对到七大功能数据库进行注释，最终分别有24,679(NR:55.04\%)，12,614(NT: 28.13\%)，
+20,152(Swissprot: 44.94\%)，8,544(COG:19.05\%)，19,226(KEGG: 42.87\%)，6,207(GO:13.84\%)以及19,339(Interpro:43.13\%)个Unigene获得功能注释。根
+据注释结果共检测出24,730个CDS，未注释上的Unigene使用ESTScan预测后获得3,199个 CDS。同时还检测出3,768个SSR分布于3,088个Unigene中。\par
+\subsection{测序数据过滤}
+测序的原始数据包含低质量、接头污染以及未知碱基N含量过高的reads，数据分析之前需要去除这些reads以保证结果的可靠性。过滤后reads的质量指标见
+表1，碱基含量分布以及质量分布见图1和图2。\par
+\vspace{5 mm}
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{threeparttable}
+\centering\caption{过滤后的reads质量统计}\label{tab:ReadsStatistic}
+\begin{tabular}{*{6}c}
+\hline
+\rowcolor{blue!20}
+\textbf{Sample} & \textbf{Total Raw Reads(Mb)} & \textbf{Total Clean Reads(Gb)} & \textbf{Total Clean Bases(Gb)} & \textbf{Clean Reads Q20(\%)} & \textbf{Clean Reads Ratio(\%)} \\
+\hline
+SA & 35.41 & 30.52 & 4.58 & 99.17 & 86.18 \\
+\hline
+\end{tabular}
+\begin{tablenotes}
+\item[1]Q20: 质量值大于20的碱基数目占总碱基数目的比例.\par
+\end{tablenotes}
+\end{threeparttable}}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width =0.8\textwidth,natwidth=610,natheight=642]{./BGI_result/1.CleanData/EUski.qual.png}	%插入图片并设置图片的宽度会被缩放至文本宽度的百分之六十，图片的总高度会按比例缩放。
+\par
+\caption{Clean reads的碱基含量分布图。X轴代表碱基在read中的位置， Y轴代表此类碱基的含量比例。 正常情况下， reads每个位置的碱基含量分布稳定， 无AT或GC分离现象。由于
+Illumina平台在RNA-Seq测序中， 反转录成cDNA时所用的6bp随机引物会引起前6个位置的GC含量组成存在偏好性， 故图中前6bp的波动为正常现象。}
+\label{ReadsHeatmap}
+\end{figure}
+\vspace{5 mm}
+
+\subsection{Denovo 组装}
+数据过滤后,我们使用 Trinity [15]对cleanreads进行组装,组装质量指标见表 2 ,组装的转录本长度分布见图 3 . 接下来我们使用 Tgicl [16]对转录本进行聚类去冗余
+得到Unigene， 聚类后的Unigene质量指标见表 3 , Unigene的长度分布见图 4 。 (对于多个样品的研究， 我们使用Tgicl对每个样品的Unigene进行再一次的聚类
+去冗余得到最终的Unigene用于后续分析， 命名为 "All-Unigene")\par
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{threeparttable}[b]
+\caption{转录本的质量指标}\label{tab:TranscriptStatistic}
+\begin{tabular}{*{8}c}
+\hline
+\textbf{Sample} & \textbf{Total Number} & \textbf{Total Length} & \textbf{Mean Length} & \textbf{N50} & \textbf{N70} & \textbf{N90} & \textbf{GC(\%)} \\
+\hline
+OB & 71,815 & 51,583,421 & 718 & 1,359 & 655 & 261 & 37.34 \\
+\hline
+\end{tabular}
+\begin{tablenotes}
+\item [1] {N50: 用于衡量组装的连续性， 数值越大说明组装效果越好， 计算方法为： 按转录本长度从大到小排序后逐个累加至所有转录本总长度的50\%时， 最后一个累加的数值大小即为N50。}
+\item [2] {GC(\%): 碱基G和C的比例。}
+\end{tablenotes}
+\end{threeparttable}}
+\end{table}
+\par
+\vspace{5 mm}
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{threeparttable}[b]
+\caption{Unigene的质量指标}\label{tab:UnigeneStatistic}
+\begin{tabular}{*{8}c}
+\hline
+\textbf{Sample} & \textbf{Total Number} & \textbf{Total Length} & \textbf{Mean Length} & \textbf{N50} & \textbf{N70} & \textbf{N90} & \textbf{GC(\%)} \\
+\hline
+OB & 71,815 & 51,583,421 & 718 & 1,359 & 655 & 261 & 37.34 \\
+\hline
+\end{tabular}
+\begin{tablenotes}
+\item [1] {N50: 用于衡量组装的连续性， 数值越大说明组装效果越好， 计算方法为： 按转录本长度从大到小排序后逐个累加至所有转录本总长度的50\%时， 最后一个累加的数值大小即为N50。}
+\item [2] {GC(\%): 碱基G和C的比例。}
+\end{tablenotes}
+\end{threeparttable}}
+\end{table}
+\vspace{5 mm}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = 0.6\textwidth]{diff-methods-compare.png}	%插入图片并设置图片的宽度会被缩放至文本宽度的百分之六十，图片的总高度会按比例缩放。
+\par
+\caption{Unigene的长度分布图。 X轴代表Unigene长度， Y轴代表相应Unigene的数目。}
+\label{UnigeneLength}
+\end{figure}
+\vspace{5 mm}
+
+\subsection{Unigene功能注释}
+组装完毕后， 我们将对组装得到的Unigene进行七大功能数据库注释(NR, NT, GO, COG, KEGG, Swissprot and Interpro)，注释结果见表4。根据NR注释结
+果，我们统计了注释结果的物种分布，见图5。根据COG、 GO和KEGG注释结果，我们统计了各自的功能分类，见图6，图7和图8。同时，维恩图来展
+示NR、COG、KEGG、Swissprot以及Interpro的注释结果，见图9。
+\par
+\vspace{5 mm}
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{threeparttable}[b]
+\caption{功能注释的统计结果}\label{tab:FunctionStatistic}
+\begin{tabular}{*{10}c}
+\hline
+\textbf{Values} & \textbf{Total} & \textbf{Nr} & \textbf{Nt} & \textbf{Swissprot} & \textbf{KEGG} & \textbf{COG} & \textbf{Interpro} & \textbf{GO} & \textbf{Overall} \\
+\hline
+Number & 51,582 & 25,417 & 15,359 & 21,425 & 20,249 & 9,744 & 20,199 & 5,802 & 29,407 \\
+Percentage & 100\% & 49.27\% & 29.78\% & 41.54\% & 39.26\% & 18.89\% & 39.16\% & 11.25\% & 57.01\% \\
+\hline
+\end{tabular}
+\begin{tablenotes}
+\item [1] {Overall: 被七大数据库中任意一个数据库注释上的Unigene总数。}
+\end{tablenotes}
+\end{threeparttable}} 
+\end{table}
+\par
+\vspace{5 mm}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = .8\textwidth]{diff-methods-compare.png}
+\par
+\caption{注释物种分布}\label{fig:Species}\par
+\end{figure}
+\par
+\vspace{5 mm}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = .8\textwidth]{diff-methods-compare.png}
+\par
+\caption{COG功能分布统计图。X轴表示相应的Unigene基因数，Y轴表示相应的COG分类}\label{fig:COG}\par
+\end{figure}
+\par
+\vspace{5 mm}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = .8\textwidth]{diff-methods-compare.png}
+\par
+\caption{GO功能分布统计图。X轴表示相应的Unigene基因数，Y轴表示相应的COG分类}\label{fig:GO}\par
+\end{figure}
+\par
+\vspace{5 mm}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = .8\textwidth]{diff-methods-compare.png}
+\par
+\caption{KEGG功能分布统计图。X轴表示相应的Unigene基因数，Y轴表示相应的COG分类}\label{fig:KEGG}\par
+\end{figure}
+\par
+\vspace{5 mm}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = .8\textwidth]{diff-methods-compare.png}
+\par
+\caption{NR、 COG、 KEGG、 Swissprot以及Interpro功能注释维恩图。}\label{fig:FunctionVenn}\par
+\end{figure}
+\par
+\vspace{5 mm}
+
+\subsection{Unigene的CDS预测}
+根据功能注释结果，我们挑选Unigene的最佳比对片段作为该Unigene的CDS。对于未能注释上的Unigene，我们使用ESTScan[5]进行CDS预测。预测结果见表13 ，预测的CDS长度分布见图10。
+\par
+\vspace{5 mm}
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{threeparttable}[b]
+\caption{CDS的质量指标}\label{tab:CDSStatistic}
+\begin{tabular}{*{8}c}
+\hline
+\textbf{Software} & \textbf{Total Number} & \textbf{Total length} & \textbf{Mean length} & \textbf{N50} & \textbf{N70} & \textbf{N90} & \textbf{GC(\%)}\\
+\hline
+Blast & 25,437 & 19,268,922 & 757 & 1,167 & 720 & 324 & 41.74 \\
+ESTScan 3,866 & 1,418,124 & 366 & 384 & 282 & 222 & 42.25 \\
+Overall 29,303 & 20,687,046 & 705 & 1,086 & 648 & 294 & 41.77 \\
+\hline
+\end{tabular}
+\begin{tablenotes}
+\item [1] {N50: 用于衡量序列的连续性， 数值越大说明连续性越好， 计算方法为： 按CDS长度从大到小排序后逐个累加至所有CDS总长度的50%时， 最后一个累加的数值大小即为N50。GC
+(\%): 碱基G和C的比例。}
+\end{tablenotes}
+\end{threeparttable}}
+\end{table}
+\par
+\vspace{5 mm}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = .8\textwidth]{diff-methods-compare.png}
+\par
+\caption{CDS长度分布图。X轴代表CDS的长度， Y轴代表相应的CDS数目。}\label{fig:LengthDis}\par
+\end{figure}
+\par
+\vspace{5 mm}
+
+\subsection{Unigene的SSR预测}
+根据组装结果， 我们对Unigene的 SSR 进行检测， 同时为每个 SSR 设计引物。 SSR 长度特征见表 14 和图 11 。 引物设计结果见表 15 。
+\par
+\vspace{5 mm}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = .8\textwidth]{diff-methods-compare.png}
+\par
+\caption{SSR长度分布图。X轴代表SSR的类型， Y轴代表相应的SSR的数目。}\label{fig:LengthDis}\par
+\end{figure}
+\par
+\vspace{5 mm}
+
+
+\subsection{Unigene的SNP检测}
+根据组装结果， 我们使用GATK [9]对每个样品进行 SNP 检测， 结果存储为以VCF格式。 SNP 检测结果见表 16 和图 12 。
+\par
+\vspace{5 mm}
+
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{threeparttable}
+\caption{SNP类型统计}\label{tab:SNPStatistic}
+\par
+\begin{tabular}{*{10}{c}}
+\hline
+\textbf{Sample} & \textbf{A-G} & \textbf{C-T} & \textbf{Transition} & \textbf{A-C} & \textbf{A-T} & \textbf{C-G} & \textbf{G-T} & \textbf{Trancversion} & \textbf{Total}\\
+\hline
+OB & 6,461 & 6,182 & 12,643 & 2,141 & 2,697 & 1,033 & 1,996 & 7,867 & 20,510 \\
+\hline
+\end{tabular}
+\begin{tablenotes}
+\item [1] {Transition: 嘌呤和嘌呤之间的替换， 或嘧啶和嘧啶之间的替换。 Transversion: 嘌呤和嘧啶之间的替换。}
+\end{tablenotes}
+\end{threeparttable}}
+\end{table}
+\par
+\vspace{5 mm}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width = .8\textwidth]{diff-methods-compare.png}
+\par
+\caption{SNP变异分布图。X轴代表变异类型， Y轴代表相应的SNP数目。}\label{fig:LengthDis}\par
+\end{figure}
+\par
+\vspace{5 mm}
+
+\subsection{Unigene的表达量的计算}
+
+
+\section{分析方法}
+\subsection{转录组De novo研究流程}
+提取样品总RNA并使用DNase I消化DNA后， 用带有Oligo（dT）的磁珠富集真核生物mRNA； 加入打断试剂在Thermomixer中适温将mRNA打断成短片段，
+以打断后的mRNA为模板合成一链 cDNA ， 然后配制二链合成反应体系合成二链 cDNA ， 并使用试剂盒纯化回收、 粘性末端修复、 cDNA 的3’末端加上碱
+基“A”并连接接头， 然后进行片段大小选择， 最后进行 PCR 扩增； 构建好的文库用Agilent 2100 Bioanalyzer和ABI StepOnePlus Real-Time PCR System质
+检， 合格后使用IlluminaHiSeq4000或其他平台进行测序
+\par
+测序所得数据称为raw reads。 首先， 我们过滤掉低质量、 接头污染以及未知碱基N含量过高的reads， 过滤后的数据称为clean reads。 然后对clean reads进行
+组装得到Unigene， 之后对Unigene进行 SSR 检测、 功能注释， 对每个样品计算Unigene表达水平以及检测 SNP 。 最后， 对于多个样品根据需求检测不同样
+品之间的差异表达基因， 并对差异表达基因做深入的聚类分析和功能富集分析。 完整的分析流程图见图 1 。
+\par
+\vspace{5mm}
+
+\begin{figure}
+\centering
+\includegraphics[width = .8\textwidth]{diff-methods-compare.png}
+\par
+\caption{转录组de novo研究流程。}\label{fig:LengthDis}\par
+\end{figure}
+\par
+\vspace{5 mm}
+
+\subsection{测序数据过滤}
+测序的原始数据包含低质量、 接头污染以及未知碱基N含量过高的reads， 数据分析之前需要去除这些reads以保证结果的可靠性。 我们使用内部软件进行过
+滤， 具体步骤如下：
+\par
+1)去除包含接头的reads(接头污染)；\par
+2)去除未知碱基N含量大于 5\%的reads； \par
+3)去除低质量的reads (我们定义质量值低于 15的碱基占该reads总碱基数的比例大于 20\%的reads为低质量的reads)。\par
+过滤后的reads称为 "CleanReads"并保存为FASTQ [1]格式(格式说明请查阅帮助页面)。
+\par
+
+\subsection{De novo 组装}
+我们使用Trinity对clean reads(去除 PCR 重复以提高组装效率)进行de novo组装, 然后使用Tgicl将组装的转录本进行聚类去冗余， 得到Unigene。 Trinity 包含三
+个独立模块: Inchworm， Chrysalis 以及 Butterfly， 依次顺序处理大量reads. Trinity 首先把reads构建成大量单独的deBruijn图， 然后对每个图分别提取全长的转
+录本剪切亚型。 简要处理过程如下：\par
+\vspace{5mm}
+Inchworm:构建k-mer库， K=25。 过滤低频k-mer选择最高频度的k-mer作为种子（不包括复杂度和单一的k-mers,一次用完即从k-mer库中剔除）， 用来
+Contig组装。 以k-mer间overlap长度等于k-1对种子进行延伸， 直到不能再延伸， 形成线性Contig。
+\par
+\vspace{5mm}
+Chrysalis:把可能存在可变剪切及其他平行基因的Contigs聚类。 每个Contig集定义成一个Component， 对每个Component构建de Bruijn graphs。 拿reads验
+证， 看每个Component的reads支持情况。
+\par
+\vspace{5mm}
+
+Butterfly:合并在deBruijn图中有连续节点的线性路径， 以形成更长的序列。 剔除可能由于测序错误（只有极少reads支持）的分叉， 使边均匀。 用动态规划算
+法打分， 鉴定被reads和readpairs支持的路径， 剔除reads支持少的路径。
+\par
+\vspace{5 mm}
+
+Trinity的组装结果我们称为转录本， 然后使用Tgicl进行聚类去冗余得到Unigene(对于多个样品， 将再次使用Tgicl对每个样品的Unigene进行聚类去冗余得到最
+终的Unigene用于后续分析)。 Unigene分为两部分， 一部分是clusters， 同一个cluster里面有若干条相似度高（大于70%）的Unigene（以CL开头， CL后面接
+基因家族的编号）。 其余的是singletons（以Unigene开头）， 代表单独的Unigene。
+\par
+\vspace{5 mm}
+
+
+\section{参考文献}
+\begin{tablenotes}
+\item[1] {[1] Cock P., et al.(2010). The SangerFASTQ file format forsequences with quality scores, and the Solexa/Illumina FASTQ variants. Nucleic Acids Research, 38(6): 1767-1771.}
+\item[2] {[2] Altschul SF, et al.(1990).Basic local alignment search tool.J Mol Biol. 1990 Oct 5;215(3):403-10.}
+\item[3] {[3] Conesa A, et al.(2005).Blast2GO: a universal tool forannotation, visualization and analysis in functional genomics research.Bioinformatics. 2005 Sep 15;21(18):3674-6.}
+\item[4] {[4] Quevillon E, et al.(2005).InterProScan: protein domains identifier.Nucleic Acids Res. 2005 Jul 1;33(Web Serverissue):W116-20.}
+\item[5] {[5] Iseli C, et al.(1999).ESTScan: a program fordetecting, evaluating, and reconstructing potential coding regions in EST sequences.Proc Int Conf Intell Syst Mol Biol. 1999:138-48.}
+\item[6] {[6] Thiel T, et al.(2003).Exploiting EST databases for the development and characterization of gene-derived SSR-markers in barley (Hordeum vulgare L.).Theor Appl Genet. 2003
+Feb;106(3):411-22.}
+\item[7] {[7] UntergrasserA, et al.(2012).Primer3 -newcapabilities and interfaces.Nucl. Acids Res. (2012)40 (15): e115.}
+\item[8] {[8] Kim D, et al.(2015).HISAT: a fast spliced alignerwith lowmemory requirements. Nature Methods 2015.}
+\item[9] {[9] McKenna A, et al.(2010).The Genome Analysis Toolkit: a MapReduce framework foranalyzing next-generation DNA sequencing data.Genome Res. 2010 Sep;20(9):1297-303.}
+\item[10] {[10] Langmead B, et al.(2012).Fast gapped-read alignment with Bowtie 2. Nature Methods. 2012, 9:357-359.}
+\item[11] {[11] Li B, et al.(2011).RSEM: accurate transcript quantification from RNA-Seq data with orwithout a reference genome.BMCBioinformatics. 2011 Aug 4;12:323.}
+\item[12] {[12] Eisen, M. B., et al. (2001). Clusteranalysis and display of genome-wide expression patterns. Proc Natl Acad Sci USA, (1998)95(25): 14863-8. 2001.29: 1165-1188.}
+\item[13] {[13] M. J. L. de Hoon, et al. (2004). Open Source Clustering Software.Bioinformatics, 20(9): 1453-1454.}
+\item[14] {[14] Saldanha, A. J. (2004). Java Treeview--extensible visualization of microarray data. Bioinformatics, 20(17): 3246-8.}
+\item[15] {[15] GrabherrMG, et al.(2011).Full-length transcriptome assembly from RNA-Seq data without a reference genome. Nat Biotechnol. 2011 May 15;29(7):644-52.}
+\item[16] {[16] Pertea G, et al.(2002).TIGRGene Indices clustering tools (TGICL): a software system forfast clustering of large EST datasets.Bioinformatics (2003)19 (5): 651-652.}
+\end{tablenotes}
+%\include{reference}
+\end{document}
